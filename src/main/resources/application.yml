@@ -1,0 +1,36 @@
+spring:
+  datasource:
+    url: ${DB_URL}
+    driver-class-name: org.mariadb.jdbc.Driver
+    username: ${DB_USER}
+    password: ${DB_PW}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+server:
+  port: ${PORT:8080}
+
+jwt:
+  issuer: butja
+  secretKey: ${SECRET_KEY}
+  accessExp:  86400000 # 1day
+  refreshExp: 604800000 # 1week
+
+springdoc:
+  api-docs:
+    enabled: true
+    version: openapi_3_0
+    path: /v3/api-docs
+
+  default-consumes-media-type: application/json
+  auto-tag-classes: true
+  groups:
+    enabled: false
+
+  swagger-ui:
+    tags-sorter: alpha
+    operationsSorter: alpha
+    path: /swagger-ui/index.html

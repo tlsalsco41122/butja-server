@@ -12,9 +12,9 @@ class CustomExceptionHandler {
 
     @ExceptionHandler(MethodNotAllowedException::class)
     fun handleMethodNotAllowedException(e: MethodNotAllowedException): ErrorResponse =
-        ErrorResponse.of(GlobalError.METHOD_NOT_ALLOWED)
+        ErrorResponse.of(GlobalErrorCode.METHOD_NOT_ALLOWED)
 
     @ExceptionHandler(Exception::class)
     fun handleException(e: Exception): ErrorResponse =
-        ErrorResponse.of(GlobalError.INTERNAL_SERVER_ERROR)
+        ErrorResponse.of(GlobalErrorCode.INTERNAL_SERVER_ERROR)
 }
