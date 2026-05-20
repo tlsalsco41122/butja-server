@@ -2,6 +2,7 @@ package com.dgsw.butja_server.global.security.jwt.util
 
 import com.dgsw.butja_server.domain.user.repository.UserRepository
 import com.dgsw.butja_server.global.exception.CustomException
+import com.dgsw.butja_server.global.security.auth.AuthDetails
 import com.dgsw.butja_server.global.security.jwt.JwtProperties
 import com.dgsw.butja_server.global.security.jwt.enums.TokenType
 import com.dgsw.butja_server.global.security.jwt.error.JwtErrorCode
@@ -13,6 +14,7 @@ import io.jsonwebtoken.MalformedJwtException
 import io.jsonwebtoken.UnsupportedJwtException
 import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Component
 import javax.crypto.SecretKey
@@ -29,15 +31,19 @@ class JwtExtractor(
 
     fun getAuthentication(token: String): Authentication {
         val claims = getClaims(token).payload
-        val subject = claims.subject.trim()
-        val
+        val username = claims.subject.trim()
+        val user = userRepository.findByUsername(username)
+            .orElseThrow { CustomException(JwtErrorCode.INVALID_TOKEN) }
+
+        val authDetails = AuthDetails(user)
+        return UsernamePasswordAuthenticationToken(authDetails, null, authDetails.authorities)
     }
 
     fun isWrongType(token: String, tokenType: TokenType): Boolean {
         val claims = getClaims(token)
-        val type = claims.header.type
+        val type = claims.header["token_type"] as? String
 
-        return type != tokenType.toString()
+        return type != tokenType.name
     }
 
     private fun getClaims(token: String): Jws<Claims> {
