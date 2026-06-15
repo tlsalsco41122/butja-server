@@ -6,18 +6,15 @@ import com.dgsw.butja_server.global.security.auth.AuthDetails
 import com.dgsw.butja_server.global.security.jwt.JwtProperties
 import com.dgsw.butja_server.global.security.jwt.enums.TokenType
 import com.dgsw.butja_server.global.security.jwt.error.JwtErrorCode
-import io.jsonwebtoken.Claims
-import io.jsonwebtoken.ExpiredJwtException
-import io.jsonwebtoken.Jws
-import io.jsonwebtoken.Jwts
-import io.jsonwebtoken.MalformedJwtException
-import io.jsonwebtoken.UnsupportedJwtException
+import io.jsonwebtoken.*
 import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
+import jakarta.servlet.http.HttpServletRequest
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Component
 import javax.crypto.SecretKey
+
 
 @Component
 class JwtExtractor(
@@ -27,6 +24,12 @@ class JwtExtractor(
     private val secretKey: SecretKey by lazy {
         val keyBytes = Decoders.BASE64.decode(jwtProperties.secretKey)
         Keys.hmacShaKeyFor(keyBytes)
+    }
+
+    fun getToken(request: HttpServletRequest): String? {
+        val authHeader = request.getHeader("Authorization") ?: return null
+        if (!authHeader.startsWith("Bearer ")) return null
+        return authHeader.substring(7)
     }
 
     fun getAuthentication(token: String): Authentication {
@@ -44,6 +47,20 @@ class JwtExtractor(
         val type = claims.header["token_type"] as? String
 
         return type != tokenType.name
+    }
+
+    fun validateToken(token: String): Boolean {
+        try {
+            Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token)
+            return true
+        } catch (e: JwtException ) {
+            return false
+        } catch (e: IllegalArgumentException) {
+            return false
+        }
     }
 
     private fun getClaims(token: String): Jws<Claims> {
