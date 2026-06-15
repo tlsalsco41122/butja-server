@@ -24,11 +24,11 @@ class AuthService(
             throw CustomException(AuthErrorCode.USERNAME_ALREADY_EXISTS)
         }
 
-        val user = User().apply {
-            username = req.username
-            password = passwordEncoder.encode(req.password)
+        val user = User(
+            username = req.username,
+            password = passwordEncoder.encode(req.password),
             nickname = req.nickname
-        }
+        )
 
         userRepository.save(user)
     }
