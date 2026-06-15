@@ -5,16 +5,17 @@ import jakarta.persistence.*
 
 @Entity
 @Table(name = "tb_user")
-class User: BaseTimeEntity() {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null
-
+class User(
     @Column(nullable = false, unique = true)
-    var username: String = ""
+    var username: String,
 
     @Column(nullable = false)
-    var password: String = ""
+    var password: String,
 
     @Column(nullable = false)
-    var nickname: String = ""
+    var nickname: String
+): BaseTimeEntity() {
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    var id: Long? = null
+        protected set
 }

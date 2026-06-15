@@ -7,7 +7,7 @@ import java.time.LocalDate
 
 @Entity
 @Table(name = "tb_job_application")
-class JobApplication protected constructor(
+class JobApplication(
     @Column(nullable = false)
     val userId: Long,
 
@@ -19,14 +19,26 @@ class JobApplication protected constructor(
 
     @Column(nullable = false)
     val appliedDate: LocalDate
+
 ): BaseTimeEntity() {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null
+    var id: Long? = null
+        protected set
 
     @Column(length = 2000)
     var memo: String? = null
+        protected set
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     var status: ApplicationStatus = ApplicationStatus.ONGOING
+        protected set
+
+    fun updateStatus(status: ApplicationStatus) {
+        this.status = status
+    }
+
+    fun updateMemo(memo: String?) {
+        this.memo = memo
+    }
 }
