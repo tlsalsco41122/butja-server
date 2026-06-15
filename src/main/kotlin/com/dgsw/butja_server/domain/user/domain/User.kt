@@ -1,10 +1,11 @@
 package com.dgsw.butja_server.domain.user.domain
 
+import com.dgsw.butja_server.global.common.entity.BaseTimeEntity
 import jakarta.persistence.*
 
 @Entity
 @Table(name = "tb_user")
-class User {
+class User: BaseTimeEntity() {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null
 
