@@ -10,6 +10,7 @@ import com.dgsw.butja_server.global.exception.CustomException
 import com.dgsw.butja_server.global.security.jwt.util.JwtProvider
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class AuthService(
@@ -17,6 +18,7 @@ class AuthService(
     private val jwtProvider: JwtProvider,
     private val passwordEncoder: PasswordEncoder
 ) {
+    @Transactional
     fun signUp(req: SignUpReq) {
         if (userRepository.findByUsername(req.username).isPresent) {
             throw CustomException(AuthErrorCode.USERNAME_ALREADY_EXISTS)
