@@ -24,7 +24,7 @@ class AuthController(
 
     @PostMapping("/signin")
     @ResponseStatus(HttpStatus.OK)
-    fun signIn(req: SignInReq): TokenRes {
+    fun signIn(@RequestBody req: SignInReq): TokenRes {
         return authService.signIn(req)
     }
 }
