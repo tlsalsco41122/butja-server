@@ -1,4 +1,4 @@
-package com.dgsw.butja_server.domain.user.controller
+package com.dgsw.butja_server.domain.user.presentation.controller
 
 import com.dgsw.butja_server.domain.user.service.UserService
 import org.springframework.http.HttpStatus

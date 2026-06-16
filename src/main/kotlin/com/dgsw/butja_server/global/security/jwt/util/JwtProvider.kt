@@ -1,6 +1,6 @@
 package com.dgsw.butja_server.global.security.jwt.util
 
-import com.dgsw.butja_server.domain.auth.controller.dto.res.TokenRes
+import com.dgsw.butja_server.domain.auth.presentation.dto.res.TokenRes
 import com.dgsw.butja_server.global.security.jwt.JwtProperties
 import com.dgsw.butja_server.global.security.jwt.enums.TokenType
 import io.jsonwebtoken.Jwts

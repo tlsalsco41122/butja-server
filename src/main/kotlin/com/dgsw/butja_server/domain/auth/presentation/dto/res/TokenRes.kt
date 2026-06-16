@@ -1,4 +1,4 @@
-package com.dgsw.butja_server.domain.auth.controller.dto.res
+package com.dgsw.butja_server.domain.auth.presentation.dto.res
 
 data class TokenRes(
     val accessToken: String,

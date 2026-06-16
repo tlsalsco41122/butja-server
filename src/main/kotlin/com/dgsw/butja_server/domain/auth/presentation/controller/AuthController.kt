@@ -1,8 +1,8 @@
-package com.dgsw.butja_server.domain.auth.controller
+package com.dgsw.butja_server.domain.auth.presentation.controller
 
-import com.dgsw.butja_server.domain.auth.controller.dto.req.SignInReq
-import com.dgsw.butja_server.domain.auth.controller.dto.req.SignUpReq
-import com.dgsw.butja_server.domain.auth.controller.dto.res.TokenRes
+import com.dgsw.butja_server.domain.auth.presentation.dto.req.SignInReq
+import com.dgsw.butja_server.domain.auth.presentation.dto.req.SignUpReq
+import com.dgsw.butja_server.domain.auth.presentation.dto.res.TokenRes
 import com.dgsw.butja_server.domain.auth.service.AuthService
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.PostMapping
