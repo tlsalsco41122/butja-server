@@ -1,6 +1,5 @@
 package com.dgsw.butja_server.domain.job_application.domain
 
-import com.dgsw.butja_server.domain.job_application.domain.enums.StageStatus
 import jakarta.persistence.*
 import java.time.LocalDateTime
 
@@ -12,19 +11,37 @@ class Stage (
     var jobApplication: JobApplication,
 
     @Column(nullable = false)
-    var stageType: String,
+    var name: String,
 
-    /** 말판에서의 순서 (0부터 시작) */
     @Column(nullable = false)
-    val stageOrder: Int,
+    var orderNumber: Int,
 ) {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    var status: StageStatus = if (stageOrder == 0) StageStatus.IN_PROGRESS else StageStatus.PENDING
+    var id: Long? = null
         protected set
 
-    // TODO: 일정 등록
+    @Column(nullable = false)
+    var completed: Boolean = false
+        protected set
+
+    var scheduledAt: LocalDateTime? = null
+        protected set
+
+    @Column(length = 2000)
+    var memo: String? = null
+        protected set
+
+    fun update(name: String?, scheduledAt: LocalDateTime?, memo: String?) {
+        name?.let { this.name = it }
+        scheduledAt?.let { this.scheduledAt = it }
+        memo?.let { this.memo = it }
+    }
+
+    fun updateOrderNumber(orderNumber: Int) {
+        this.orderNumber = orderNumber
+    }
+
+    fun updateCompleted(completed: Boolean) {
+        this.completed = completed
+    }
 }

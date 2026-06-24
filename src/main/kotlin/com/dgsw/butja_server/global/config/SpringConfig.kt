@@ -15,6 +15,8 @@ class SpringConfig {
 
     @Bean
     fun objectMapper(): ObjectMapper {
-        return ObjectMapper().registerKotlinModule()
+        return ObjectMapper()
+            .registerKotlinModule()
+            .findAndRegisterModules()
     }
 }

@@ -1,6 +1,6 @@
 package com.dgsw.butja_server.domain.job_application.domain
 
-import com.dgsw.butja_server.domain.job_application.domain.enums.ApplicationStatus
+import com.dgsw.butja_server.domain.user.domain.User
 import com.dgsw.butja_server.global.common.entity.BaseTimeEntity
 import jakarta.persistence.*
 import java.time.LocalDate
@@ -8,8 +8,9 @@ import java.time.LocalDate
 @Entity
 @Table(name = "tb_job_application")
 class JobApplication(
-    @Column(nullable = false)
-    val userId: Long,
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    val user: User,
 
     @Column(nullable = false)
     var companyName: String,
@@ -18,7 +19,7 @@ class JobApplication(
     var jobRole: String,
 
     @Column(nullable = false)
-    val appliedDate: LocalDate
+    var appliedDate: LocalDate,
 
 ): BaseTimeEntity() {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,16 +30,14 @@ class JobApplication(
     var memo: String? = null
         protected set
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    var status: ApplicationStatus = ApplicationStatus.ONGOING
-        protected set
-
-    fun updateStatus(status: ApplicationStatus) {
-        this.status = status
-    }
-
     fun updateMemo(memo: String?) {
         this.memo = memo
+    }
+
+    fun update(companyName: String?, jobRole: String?, appliedDate: LocalDate?, memo: String?) {
+        companyName?.let { this.companyName = it }
+        jobRole?.let { this.jobRole = it }
+        appliedDate?.let { this.appliedDate = it }
+        memo?.let { this.memo = it }
     }
 }
