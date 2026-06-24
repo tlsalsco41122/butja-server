@@ -4,7 +4,7 @@ WORKDIR /app
 
 RUN addgroup -S spring && adduser -S spring -G spring
 
-COPY build/libs/*-SNAPSHOT.jar app.jar
+COPY build/libs/*.jar app.jar
 
 USER spring:spring
 
