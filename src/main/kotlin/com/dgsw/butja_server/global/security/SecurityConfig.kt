@@ -5,6 +5,7 @@ import com.dgsw.butja_server.global.security.jwt.JwtFilter
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
@@ -38,6 +39,7 @@ class SecurityConfig(
             }
             .authorizeHttpRequests {
                 it
+                    .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                     .requestMatchers("/api/auth/**").permitAll()
                     .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/api-docs").permitAll()
                     .anyRequest().authenticated()
@@ -56,17 +58,16 @@ class SecurityConfig(
 
     @Bean
     fun corsConfigurationSource(): CorsConfigurationSource {
-        val corsConfiguration = CorsConfiguration()
-        corsConfiguration.addAllowedOrigin("http://localhost:8080")
-        corsConfiguration.addAllowedOrigin("http://15.164.203.58:8080")
-        corsConfiguration.addAllowedOrigin("http://127.0.0.1:5173")
-        corsConfiguration.addAllowedHeader("*")
-        corsConfiguration.addAllowedMethod("*")
-        corsConfiguration.allowCredentials = true
+        val config = CorsConfiguration()
 
-        val urlBasedCorsConfigurationSource = UrlBasedCorsConfigurationSource()
-        urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration)
+        config.allowedOriginPatterns = listOf("*")
+        config.allowedMethods = listOf("*")
+        config.allowedHeaders = listOf("*")
+        config.allowCredentials = false
 
-        return urlBasedCorsConfigurationSource
+        val source = UrlBasedCorsConfigurationSource()
+        source.registerCorsConfiguration("/**", config)
+
+        return source
     }
 }
