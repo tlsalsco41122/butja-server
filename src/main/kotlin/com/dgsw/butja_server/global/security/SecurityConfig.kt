@@ -60,10 +60,15 @@ class SecurityConfig(
     fun corsConfigurationSource(): CorsConfigurationSource {
         val config = CorsConfiguration()
 
-        config.allowedOriginPatterns = listOf("*")
+        config.allowedOriginPatterns = listOf(
+            "http://localhost:*",
+            "http://127.0.0.1:*",
+            "https://*.vercel.app"
+        )
+
         config.allowedMethods = listOf("*")
         config.allowedHeaders = listOf("*")
-        config.allowCredentials = false
+        config.allowCredentials = true
 
         val source = UrlBasedCorsConfigurationSource()
         source.registerCorsConfiguration("/**", config)
