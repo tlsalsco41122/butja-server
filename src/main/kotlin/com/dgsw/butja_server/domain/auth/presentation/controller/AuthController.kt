@@ -1,9 +1,11 @@
-package com.dgsw.butja_server.domain.auth.controller
+package com.dgsw.butja_server.domain.auth.presentation.controller
 
-import com.dgsw.butja_server.domain.auth.controller.dto.req.SignInReq
-import com.dgsw.butja_server.domain.auth.controller.dto.req.SignUpReq
-import com.dgsw.butja_server.domain.auth.controller.dto.res.TokenRes
+import com.dgsw.butja_server.domain.auth.presentation.dto.req.SignInReq
+import com.dgsw.butja_server.domain.auth.presentation.dto.req.SignUpReq
+import com.dgsw.butja_server.domain.auth.presentation.dto.res.TokenRes
 import com.dgsw.butja_server.domain.auth.service.AuthService
+import com.dgsw.butja_server.global.common.response.ApiResponse
+import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -18,13 +20,14 @@ class AuthController(
 ) {
     @PostMapping("/signup")
     @ResponseStatus(HttpStatus.CREATED)
-    fun signUp(@RequestBody req: SignUpReq) {
+    fun signUp(@Valid @RequestBody req: SignUpReq): ApiResponse<Nothing> {
         authService.signUp(req)
+        return ApiResponse.success(null)
     }
 
     @PostMapping("/signin")
     @ResponseStatus(HttpStatus.OK)
-    fun signIn(@RequestBody req: SignInReq): TokenRes {
-        return authService.signIn(req)
+    fun signIn(@Valid @RequestBody req: SignInReq): ApiResponse<TokenRes> {
+        return ApiResponse.success(authService.signIn(req))
     }
 }
