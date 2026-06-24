@@ -39,19 +39,27 @@ class StageService(
         }
 
         saveWithReorderedNumbers(reorderedStages)
-        return stage.toRes()
+        return stage.toRes(reorderedStages.findCurrentStage()?.id)
     }
 
     @Transactional(readOnly = true)
     fun getList(applicationId: Long): List<StageRes> {
         val jobApplication = jobApplicationService.getMyApplication(applicationId)
-        return getStages(jobApplication).map { it.toRes() }
+        val stages = getStages(jobApplication)
+        val currentStageId = stages.findCurrentStage()?.id
+
+        return stages.map { it.toRes(currentStageId) }
     }
 
     @Transactional(readOnly = true)
     fun getDetail(applicationId: Long, stageId: Long): StageRes {
         val jobApplication = jobApplicationService.getMyApplication(applicationId)
-        return getStage(jobApplication, stageId).toRes()
+        val stages = getStages(jobApplication)
+        val currentStageId = stages.findCurrentStage()?.id
+        val stage = stages.firstOrNull { it.id == stageId }
+            ?: throw CustomException(JobApplicationErrorCode.STAGE_NOT_FOUND)
+
+        return stage.toRes(currentStageId)
     }
 
     @Transactional
@@ -65,7 +73,7 @@ class StageService(
             memo = req.memo
         )
 
-        return stage.toRes()
+        return stage.toRes(getStages(jobApplication).findCurrentStage()?.id)
     }
 
     @Transactional
@@ -93,7 +101,9 @@ class StageService(
         }
 
         saveWithReorderedNumbers(reorderedStages)
-        return reorderedStages.map { it.toRes() }
+        val currentStageId = reorderedStages.findCurrentStage()?.id
+
+        return reorderedStages.map { it.toRes(currentStageId) }
     }
 
     @Transactional
@@ -103,7 +113,7 @@ class StageService(
 
         stage.updateCompleted(req.completed)
 
-        return stage.toRes()
+        return stage.toRes(getStages(jobApplication).findCurrentStage()?.id)
     }
 
     @Transactional(readOnly = true)
@@ -118,7 +128,7 @@ class StageService(
         val currentStage = getStages(jobApplication)
             .sortedBy { it.orderNumber }
             .firstOrNull { !it.completed }
-            ?.toRes()
+            ?.let { it.toRes(it.id) }
 
         return CurrentStageRes(currentStage)
     }
@@ -138,37 +148,5 @@ class StageService(
         }
 
         stageRepository.saveAll(stages)
-    }
-
-    private fun JobApplication.requireId(): Long {
-        return id ?: throw CustomException(JobApplicationErrorCode.JOB_APPLICATION_NOT_FOUND)
-    }
-
-    private fun Stage.requireId(): Long {
-        return id ?: throw CustomException(JobApplicationErrorCode.STAGE_NOT_FOUND)
-    }
-
-    private fun Stage.toRes(): StageRes {
-        return StageRes(
-            id = requireId(),
-            jobApplicationId = jobApplication.requireId(),
-            name = name,
-            orderNumber = orderNumber,
-            completed = completed,
-            scheduledAt = scheduledAt,
-            memo = memo
-        )
-    }
-
-    private fun List<Stage>.toProgressRes(): ProgressRes {
-        val totalCount = size
-        val completedCount = count { it.completed }
-        val progressRate = if (totalCount == 0) 0.0 else completedCount * 100.0 / totalCount
-
-        return ProgressRes(
-            totalCount = totalCount,
-            completedCount = completedCount,
-            progressRate = progressRate
-        )
     }
 }

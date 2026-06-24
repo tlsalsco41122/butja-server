@@ -8,11 +8,8 @@ import com.dgsw.butja_server.domain.job_application.presentation.dto.req.CreateA
 import com.dgsw.butja_server.domain.job_application.presentation.dto.req.UpdateApplicationReq
 import com.dgsw.butja_server.domain.job_application.presentation.dto.res.JobApplicationDetailRes
 import com.dgsw.butja_server.domain.job_application.presentation.dto.res.JobApplicationRes
-import com.dgsw.butja_server.domain.job_application.presentation.dto.res.ProgressRes
-import com.dgsw.butja_server.domain.job_application.presentation.dto.res.StageRes
 import com.dgsw.butja_server.domain.job_application.repository.JobApplicationRepository
 import com.dgsw.butja_server.domain.job_application.repository.StageRepository
-import com.dgsw.butja_server.domain.user.domain.User
 import com.dgsw.butja_server.global.exception.CustomException
 import com.dgsw.butja_server.global.security.auth.UserSessionHolder
 import org.springframework.stereotype.Service
@@ -100,67 +97,37 @@ class JobApplicationService(
     }
 
     private fun toDetailRes(jobApplication: JobApplication, stages: List<Stage>): JobApplicationDetailRes {
+        val currentStage = stages.findCurrentStage()
+        val currentStageId = currentStage?.id
+
         return JobApplicationDetailRes(
             id = jobApplication.requireId(),
             companyName = jobApplication.companyName,
             jobRole = jobApplication.jobRole,
             appliedDate = jobApplication.appliedDate,
             memo = jobApplication.memo,
-            currentStage = stages.findCurrentStage()?.toRes(),
+            currentStage = currentStage?.toRes(currentStageId),
             progress = stages.toProgressRes(),
-            stages = stages.map { it.toRes() },
+            stages = stages.map { it.toRes(currentStageId) },
             createdAt = jobApplication.createdAt,
             updatedAt = jobApplication.updatedAt
         )
     }
 
     private fun toRes(jobApplication: JobApplication, stages: List<Stage>): JobApplicationRes {
+        val currentStage = stages.findCurrentStage()
+        val currentStageId = currentStage?.id
+
         return JobApplicationRes(
             id = jobApplication.requireId(),
             companyName = jobApplication.companyName,
             jobRole = jobApplication.jobRole,
             appliedDate = jobApplication.appliedDate,
             memo = jobApplication.memo,
-            currentStage = stages.findCurrentStage()?.toRes(),
+            currentStage = currentStage?.toRes(currentStageId),
             progress = stages.toProgressRes(),
             createdAt = jobApplication.createdAt,
             updatedAt = jobApplication.updatedAt
-        )
-    }
-
-    private fun JobApplication.requireId(): Long {
-        return id ?: throw CustomException(JobApplicationErrorCode.JOB_APPLICATION_NOT_FOUND)
-    }
-
-    private fun Stage.requireId(): Long {
-        return id ?: throw CustomException(JobApplicationErrorCode.STAGE_NOT_FOUND)
-    }
-
-    private fun Stage.toRes(): StageRes {
-        return StageRes(
-            id = requireId(),
-            jobApplicationId = jobApplication.requireId(),
-            name = name,
-            orderNumber = orderNumber,
-            completed = completed,
-            scheduledAt = scheduledAt,
-            memo = memo
-        )
-    }
-
-    private fun List<Stage>.findCurrentStage(): Stage? {
-        return sortedBy { it.orderNumber }.firstOrNull { !it.completed }
-    }
-
-    private fun List<Stage>.toProgressRes(): ProgressRes {
-        val totalCount = size
-        val completedCount = count { it.completed }
-        val progressRate = if (totalCount == 0) 0.0 else completedCount * 100.0 / totalCount
-
-        return ProgressRes(
-            totalCount = totalCount,
-            completedCount = completedCount,
-            progressRate = progressRate
         )
     }
 }
