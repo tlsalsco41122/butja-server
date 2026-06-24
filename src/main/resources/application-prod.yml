@@ -1,0 +1,23 @@
+spring:
+  datasource:
+    url: ${DB_URL}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: ${JPA_DDL_AUTO:update}
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+
+server:
+  port: ${PORT:8080}
+
+jwt:
+  issuer: ${JWT_ISSUER:butja}
+  secretKey: ${JWT_SECRET}
+  accessExp: ${JWT_ACCESS_EXP:86400000}
+  refreshExp: ${JWT_REFRESH_EXP:604800000}
