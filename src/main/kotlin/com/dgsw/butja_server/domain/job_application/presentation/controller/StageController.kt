@@ -90,6 +90,15 @@ class StageController(
         return ApiResponse.success(stageService.complete(applicationId, stageId, req))
     }
 
+    @PatchMapping("/{stageId}/fail")
+    @ResponseStatus(HttpStatus.OK)
+    fun fail(
+        @PathVariable applicationId: Long,
+        @PathVariable stageId: Long
+    ): ApiResponse<StageRes> {
+        return ApiResponse.success(stageService.fail(applicationId, stageId))
+    }
+
     @GetMapping("/progress")
     @ResponseStatus(HttpStatus.OK)
     fun getProgress(@PathVariable applicationId: Long): ApiResponse<ProgressRes> {

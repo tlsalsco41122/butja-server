@@ -2,6 +2,7 @@ package com.dgsw.butja_server.domain.job_application.service
 
 import com.dgsw.butja_server.domain.job_application.domain.JobApplication
 import com.dgsw.butja_server.domain.job_application.domain.Stage
+import com.dgsw.butja_server.domain.job_application.domain.enums.StageStatus
 import com.dgsw.butja_server.domain.job_application.error.JobApplicationErrorCode
 import com.dgsw.butja_server.domain.job_application.presentation.dto.req.CompleteStageReq
 import com.dgsw.butja_server.domain.job_application.presentation.dto.req.CreateStageReq
@@ -109,11 +110,48 @@ class StageService(
     @Transactional
     fun complete(applicationId: Long, stageId: Long, req: CompleteStageReq): StageRes {
         val jobApplication = jobApplicationService.getMyApplication(applicationId)
+        val stages = getStages(jobApplication)
+
+        // FAILED 상태인 지원서는 complete 불가
+        if (stages.hasFailed()) {
+            throw CustomException(JobApplicationErrorCode.ALREADY_FAILED_APPLICATION)
+        }
+
         val stage = getStage(jobApplication, stageId)
+
+        // IN_PROGRESS 상태인 전형만 완료 처리 가능
+        if (stage.status != StageStatus.IN_PROGRESS) {
+            throw CustomException(JobApplicationErrorCode.INVALID_STAGE_STATUS_TRANSITION)
+        }
 
         stage.updateCompleted(req.completed)
 
+        // 완료 처리 시 다음 PENDING 전형을 IN_PROGRESS로 변경
+        if (req.completed) {
+            val nextStage = stages
+                .sortedBy { it.orderNumber }
+                .firstOrNull { it.status == StageStatus.PENDING }
+            nextStage?.markInProgress()
+            nextStage?.let { stageRepository.save(it) }
+        }
+
         return stage.toRes(getStages(jobApplication).findCurrentStage()?.id)
+    }
+
+    @Transactional
+    fun fail(applicationId: Long, stageId: Long): StageRes {
+        val jobApplication = jobApplicationService.getMyApplication(applicationId)
+        val stages = getStages(jobApplication)
+        val stage = getStage(jobApplication, stageId)
+
+        // IN_PROGRESS 상태인 전형만 불합격 처리 가능
+        if (stage.status != StageStatus.IN_PROGRESS) {
+            throw CustomException(JobApplicationErrorCode.INVALID_STAGE_STATUS_TRANSITION)
+        }
+
+        stage.markFailed()
+
+        return stage.toRes(stages.findCurrentStage()?.id)
     }
 
     @Transactional(readOnly = true)
@@ -125,9 +163,9 @@ class StageService(
     @Transactional(readOnly = true)
     fun getCurrentStage(applicationId: Long): CurrentStageRes {
         val jobApplication = jobApplicationService.getMyApplication(applicationId)
-        val currentStage = getStages(jobApplication)
-            .sortedBy { it.orderNumber }
-            .firstOrNull { !it.completed }
+        val stages = getStages(jobApplication).sortedBy { it.orderNumber }
+        val currentStage = stages
+            .firstOrNull { it.status == StageStatus.IN_PROGRESS }
             ?.let { it.toRes(it.id) }
 
         return CurrentStageRes(currentStage)
@@ -146,7 +184,6 @@ class StageService(
         stages.forEachIndexed { index, stage ->
             stage.updateOrderNumber(index)
         }
-
         stageRepository.saveAll(stages)
     }
 }
