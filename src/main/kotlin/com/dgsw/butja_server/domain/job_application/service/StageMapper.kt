@@ -14,7 +14,7 @@ fun Stage.toRes(currentStageId: Long?): StageRes {
         jobApplicationId = jobApplication.requireId(),
         name = name,
         orderNumber = orderNumber,
-        completed = completed,
+        completed = status == StageStatus.COMPLETED,
         status = status,
         scheduledAt = scheduledAt,
         memo = memo

@@ -26,12 +26,6 @@ class Stage(
     var status: StageStatus = StageStatus.PENDING
         protected set
 
-    // 기존 completed 필드는 status로 대체되므로 제거하거나 하위 호환용으로 유지
-    // 여기서는 status 기반으로 완전히 전환하는 것을 권장
-    @get:Transient
-    val completed: Boolean
-        get() = status == StageStatus.COMPLETED
-
     var scheduledAt: LocalDateTime? = null
         protected set
 

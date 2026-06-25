@@ -8,7 +8,6 @@ data class StageRes(
     val jobApplicationId: Long,
     val name: String,
     val orderNumber: Int,
-    val completed: Boolean,
     val status: StageStatus,
     val scheduledAt: LocalDateTime?,
     val memo: String?
