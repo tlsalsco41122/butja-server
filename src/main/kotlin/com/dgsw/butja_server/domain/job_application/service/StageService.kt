@@ -40,6 +40,14 @@ class StageService(
         }
 
         saveWithReorderedNumbers(reorderedStages)
+
+        val hasInProgress = reorderedStages.any { it.status == StageStatus.IN_PROGRESS }
+        if (!hasInProgress) {
+            val firstStage = reorderedStages.minByOrNull { it.orderNumber }
+            firstStage?.markInProgress()
+            firstStage?.let { stageRepository.save(it) }
+        }
+
         return stage.toRes(reorderedStages.findCurrentStage()?.id)
     }
 
