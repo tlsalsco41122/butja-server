@@ -8,6 +8,4 @@ interface StageRepository: JpaRepository<Stage, Long> {
     fun findAllByJobApplicationIdOrderByOrderNumberAsc(jobApplicationId: Long): List<Stage>
 
     fun findByIdAndJobApplicationId(id: Long, jobApplicationId: Long): Optional<Stage>
-
-    fun findFirstByJobApplicationIdAndCompletedFalseOrderByOrderNumberAsc(jobApplicationId: Long): Stage?
 }
